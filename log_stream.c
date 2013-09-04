@@ -34,7 +34,6 @@ zval *php_log_get_server_info(mongo_connection *connection)
 	add_assoc_string(retval, "hash", connection->hash, 1);
 	add_assoc_long(retval, "type", connection->connection_type);
 	add_assoc_long(retval, "max_bson_size", connection->max_bson_size);
-	add_assoc_long(retval, "max_message_size", connection->max_message_size);
 	add_assoc_long(retval, "request_id", connection->last_reqid);
 
 	return retval;

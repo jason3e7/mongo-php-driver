@@ -243,8 +243,6 @@ static zval* append_getlasterror(zval *coll, buffer *buf, zval *options, mongo_c
 	mongo_db *db = (mongo_db*)zend_object_store_get_object(c->parent TSRMLS_CC);
 	int response, w = 0, fsync = 0, journal = 0, timeout = -1;
 	mongoclient *link = (mongoclient*) zend_object_store_get_object(c->link TSRMLS_CC);
-	int max_document_size = connection->max_bson_size;
-	int max_message_size = connection->max_message_size;
 
 	mongo_manager_log(MonGlo(manager), MLOG_IO, MLOG_FINE, "append_getlasterror");
 
@@ -429,7 +427,7 @@ static zval* append_getlasterror(zval *coll, buffer *buf, zval *options, mongo_c
 	cursor->query = cmd;
 
 	/* append the query */
-	response = php_mongo_write_query(buf, cursor, max_document_size, max_message_size TSRMLS_CC);
+	response = php_mongo_write_query(buf, cursor TSRMLS_CC);
 	zval_ptr_dtor(&cmd_ns_z);
 
 #if MONGO_PHP_STREAMS
@@ -683,7 +681,7 @@ PHP_METHOD(MongoCollection, insert)
 	}
 
 	CREATE_BUF(buf, INITIAL_BUF_SIZE);
-	if (FAILURE == php_mongo_write_insert(&buf, Z_STRVAL_P(c->ns), a, connection->max_bson_size, connection->max_message_size TSRMLS_CC)) {
+	if (FAILURE == php_mongo_write_insert(&buf, Z_STRVAL_P(c->ns), a, connection->max_bson_size TSRMLS_CC)) {
 		efree(buf.start);
 		RETURN_FALSE;
 	}
@@ -745,7 +743,7 @@ PHP_METHOD(MongoCollection, batchInsert)
 
 	CREATE_BUF(buf, INITIAL_BUF_SIZE);
 
-	if (php_mongo_write_batch_insert(&buf, Z_STRVAL_P(c->ns), bit_opts, docs, connection->max_bson_size, connection->max_message_size TSRMLS_CC) == FAILURE) {
+	if (php_mongo_write_batch_insert(&buf, Z_STRVAL_P(c->ns), bit_opts, docs, connection->max_bson_size TSRMLS_CC) == FAILURE) {
 		efree(buf.start);
 		zval_ptr_dtor(&options);
 		return;
@@ -938,7 +936,7 @@ PHP_METHOD(MongoCollection, update)
 	}
 
 	CREATE_BUF(buf, INITIAL_BUF_SIZE);
-	if (FAILURE == php_mongo_write_update(&buf, Z_STRVAL_P(c->ns), bit_opts, criteria, newobj, connection->max_bson_size, connection->max_message_size TSRMLS_CC)) {
+	if (FAILURE == php_mongo_write_update(&buf, Z_STRVAL_P(c->ns), bit_opts, criteria, newobj TSRMLS_CC)) {
 		efree(buf.start);
 		zval_ptr_dtor(&options);
 		return;
@@ -1004,7 +1002,7 @@ PHP_METHOD(MongoCollection, remove)
 	}
 
 	CREATE_BUF(buf, INITIAL_BUF_SIZE);
-	if (FAILURE == php_mongo_write_delete(&buf, Z_STRVAL_P(c->ns), bit_opts, criteria, connection->max_bson_size, connection->max_message_size TSRMLS_CC)) {
+	if (FAILURE == php_mongo_write_delete(&buf, Z_STRVAL_P(c->ns), bit_opts, criteria TSRMLS_CC)) {
 		efree(buf.start);
 		zval_ptr_dtor(&criteria);
 		zval_ptr_dtor(&options);

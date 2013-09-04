@@ -1054,7 +1054,7 @@ int mongo_cursor__do_query(zval *this_ptr, zval *return_value TSRMLS_DC)
 
 	/* Create query buffer */
 	CREATE_BUF(buf, INITIAL_BUF_SIZE);
-	if (php_mongo_write_query(&buf, cursor, cursor->connection->max_bson_size, cursor->connection->max_message_size TSRMLS_CC) == FAILURE) {
+	if (php_mongo_write_query(&buf, cursor TSRMLS_CC) == FAILURE) {
 		efree(buf.start);
 		return FAILURE;
 	}
@@ -1824,7 +1824,7 @@ void php_mongo_kill_cursor(mongo_connection *con, int64_t cursor_id TSRMLS_DC)
 	buf.start = buf.pos;
 	buf.end = buf.start + 128;
 
-	php_mongo_write_kill_cursors(&buf, cursor_id, MONGO_DEFAULT_MAX_MESSAGE_SIZE TSRMLS_CC);
+	php_mongo_write_kill_cursors(&buf, cursor_id TSRMLS_CC);
 #if MONGO_PHP_STREAMS
 	mongo_log_stream_killcursor(con, cursor_id TSRMLS_CC);
 #endif
